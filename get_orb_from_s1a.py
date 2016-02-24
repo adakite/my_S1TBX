@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = "Antoine Lucas"
 __copyright__ = "Copyright 2016, Antoine Lucas"
-__license__ = "GPL"
+__license__ = "CeCILL"
 __version__ = "0.0.1"
 __email__ = "dralucas@astrogeophysx.net"
 __status__ = "Prototype"
