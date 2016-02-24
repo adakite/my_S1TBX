@@ -136,7 +136,7 @@ print " 3/ Preprocessing subswaths"
 
 for ii in range(0,n_sw):
     if len(sys.argv)==4:  
-        print "      Subswath #:", str(ii+1),
+        print "      Subswath #:", str(ii+1)
     else:
         print "      Subswath #:", str(iwnum)
     
