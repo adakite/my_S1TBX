@@ -5,9 +5,9 @@ __license__ = "GPL"
 __version__ = "0.0.1"
 __email__ = "dralucas@astrogeophysx.net"
 __status__ = "Prototype"
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# download the orbits at https://www.unavco.org/data/imaging/sar/lts1/winsar/s1qc/aux_poeorb/
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# download S1A orbits from https://www.unavco.org/data/imaging/sar/lts1/winsar/s1qc/aux_poeorb/
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import os
 from bs4 import BeautifulSoup
