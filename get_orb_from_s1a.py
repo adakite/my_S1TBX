@@ -42,16 +42,14 @@ for remotefile in listFD(url, ext):
     
     
     if int(date+timemin) >= tmin and int(date+timemax) <= tmax:
-        print "      > Orbit file:", eofname
+       
         import urllib2
-
-
         file_name = remotefile.split('/')[-1]
         u = urllib2.urlopen(remotefile)
         f = open(file_name, 'wb')
         meta = u.info()
         file_size = int(meta.getheaders("Content-Length")[0])
-        print "Downloading: %s Bytes: %s" % (file_name, file_size)
+        
 
         file_size_dl = 0
         block_sz = 8192
@@ -63,7 +61,7 @@ for remotefile in listFD(url, ext):
 
           file_size_dl += len(buffer)
           f.write(buffer)
-          status = r"  [%3.2f%%]" % (file_size_dl * 100. / file_size)
+          status = "\r\r       Downloading: %s :  [%3.2f%%]" % (file_name, file_size_dl * 100. / file_size)
           print status,
 
         f.close()
