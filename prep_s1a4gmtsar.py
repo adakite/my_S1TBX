@@ -149,13 +149,43 @@ for ii in range(0,n_sw):
     
     cmd =  align_tops + "  ./raw/" + img1name + "  ./raw/" + eof1name + " ./raw/" + img1name + "  ./raw/" + eof1name + "  ./raw/" + demfile 
     
+    
+    
     if debug:
-        print " debug mode:"
-        print cmd
-        print " "
+        print " debug mode:", cmd
+
     else:
         out = subprocess.check_output(cmd, shell=True)
         
         
+    if len(sys.argv)==4:  
+        cmd="mkdir F" + str(ii+1)
+    else: 
+        cmd="mkdir F" + str(iwnum)
         
         
+    if debug:
+        print " debug mode:", cmd
+
+    else:
+        out = subprocess.check_output(cmd, shell=True)    
+    
+    
+    if len(sys.argv)==4:  
+        cmd="mkdir F" + str(ii+1) + "/raw"
+        cmd2="ln -s config.s1a.txt ./F" + str(ii+1) + "/"
+        cmd3="ln -s ./raw/*F" + str(ii+1) + "* ./F" + str(ii+1) + "/raw/"
+    else: 
+        cmd="mkdir F" + str(iwnum) + "/raw"
+        cmd2="ln -s config.s1a.txt ./F" + str(iwnum) + "/"  
+        cmd3="ln -s ./raw/*F" + str(iwnum) + "* ./F" + str(iwnum) + "/raw/"
+        
+    if debug:
+        print " debug mode:", cmd
+        print " debug mode:", cmd2
+        print " debug mode:", cmd3
+        
+    else:
+        out = subprocess.check_output(cmd, shell=True)    
+        out = subprocess.check_output(cmd2, shell=True)   
+        out = subprocess.check_output(cmd3, shell=True) 
