@@ -9,7 +9,7 @@ __status__ = "Prototype"
 # download S1A orbits from https://www.unavco.org/data/imaging/sar/lts1/winsar/s1qc/aux_poeorb/
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-import os
+import os,sys
 from bs4 import BeautifulSoup
 import requests
 
