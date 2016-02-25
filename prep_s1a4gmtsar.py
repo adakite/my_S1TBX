@@ -54,7 +54,7 @@ else:
     out = subprocess.check_output(cmd, shell=True);
         
 demfile=str(sys.argv[1])
-cmd="ln -s " + str(demfile) + " ./raw/"
+cmd="ln -sr " + str(demfile) + " ./raw/"
 if debug:
     print " debug mode:", cmd
     print " "
@@ -69,26 +69,26 @@ for img in sys.argv[2:4]:
     print "    ", img
 
     if len(sys.argv)==4:  
-        cmd="ln -s ./" + img + ".SAFE/annotation/s1a*.xml ./raw/"
+        cmd="ln -sr ./" + img + ".SAFE/annotation/s1a*.xml ./raw/"
         S1Aswath[ii][:]=fnmatch.filter(os.listdir("./"+img+".SAFE/annotation/"),'s1a*-vv-*.xml')
       
     else:
-        cmd="ln -s ./" + img + ".SAFE/annotation/s1a-iw" + str(iwnum) + "*-vv-*.xml ./raw/"
+        cmd="ln -sr ./" + img + ".SAFE/annotation/s1a-iw" + str(iwnum) + "*-vv-*.xml ./raw/"
         S1Aswath[ii][:]=fnmatch.filter(os.listdir("./"+img+".SAFE/annotation/"),"s1a-iw" + str(iwnum) + "*-vv-*.xml")
 
   
     if debug:
         print " debug mode:", cmd
-        print " debug mode:", S1Aswath
+        #print " debug mode:", S1Aswath
         print " "
 
     else:
         out = subprocess.check_output(cmd, shell=True)
        
     if len(sys.argv)==4:
-        cmd="ln -s ./" + img + ".SAFE/measurement/s1a*.tiff  ./raw/"
+        cmd="ln -sr ./" + img + ".SAFE/measurement/s1a*.tiff  ./raw/"
     else:
-        cmd="ln -s ./" + img + ".SAFE/measurement/s1a-iw" + str(iwnum) + "*-vv-*.tiff ./raw/"
+        cmd="ln -sr ./" + img + ".SAFE/measurement/s1a-iw" + str(iwnum) + "*-vv-*.tiff ./raw/"
         
     if debug:
         print " debug mode:", cmd
@@ -114,13 +114,13 @@ for img in sys.argv[2:4]:
             tmin=int(eoffile[iV+1:iV+9]+eoffile[iV+10:iV+16])
             if int(date+timemin) >= tmin and int(date+timemax) <= tmax:
                 print "     with its orb file:", eoffile
-                cmd="ln -s " + eoffile + "./raw/"
+                cmd="ln -sr " + eoffile + " ./raw/"
                 S1Aoef[ii]=eoffile
                 findeof=True
                 if debug:
-                    print " debug mode:"
-                    print cmd
-                    print S1Aoef
+                    print " debug mode:", cmd
+                    #print cmd
+                    #print S1Aoef
                     print " "
                 else:
                     out = subprocess.check_output(cmd, shell=True)
@@ -147,7 +147,7 @@ for ii in range(0,n_sw):
     if demfile.rfind('/'):
         demfile=demfile[demfile.rfind('/')+1:]
     
-    cmd =  align_tops + "  ./raw/" + img1name + "  ./raw/" + eof1name + " ./raw/" + img1name + "  ./raw/" + eof1name + "  ./raw/" + demfile 
+    cmd =  align_tops + "  ./raw/" + img1name + "  ./raw/" + eof1name + " ./raw/" + img2name + "  ./raw/" + eof2name + "  ./raw/" + demfile 
     
     
     
@@ -173,12 +173,12 @@ for ii in range(0,n_sw):
     
     if len(sys.argv)==4:  
         cmd="mkdir F" + str(ii+1) + "/raw"
-        cmd2="ln -s config.s1a.txt ./F" + str(ii+1) + "/"
-        cmd3="ln -s ./raw/*F" + str(ii+1) + "* ./F" + str(ii+1) + "/raw/"
+        cmd2="ln -sr config.s1a.txt ./F" + str(ii+1) + "/"
+        cmd3="ln -sr ./raw/*F" + str(ii+1) + "* ./F" + str(ii+1) + "/raw/"
     else: 
         cmd="mkdir F" + str(iwnum) + "/raw"
-        cmd2="ln -s config.s1a.txt ./F" + str(iwnum) + "/"  
-        cmd3="ln -s ./raw/*F" + str(iwnum) + "* ./F" + str(iwnum) + "/raw/"
+        cmd2="ln -sr config.s1a.txt ./F" + str(iwnum) + "/"  
+        cmd3="ln -sr ./raw/*F" + str(iwnum) + "* ./F" + str(iwnum) + "/raw/"
         
     if debug:
         print " debug mode:", cmd
