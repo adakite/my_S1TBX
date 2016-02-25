@@ -174,11 +174,11 @@ for ii in range(0,n_sw):
     if len(sys.argv)==4:  
         cmd="mkdir F" + str(ii+1) + "/raw"
         cmd2="ln -sr ../config.s1a.txt ./F" + str(ii+1) + "/"
-        cmd3="ln -sr *F" + str(ii+1) + "* ./F" + str(ii+1) + "/raw/"
+        cmd3="ln -sr S*F" + str(ii+1) + "* ./F" + str(ii+1) + "/raw/"
     else: 
         cmd="mkdir F" + str(iwnum) + "/raw"
         cmd2="ln -sr ../config.s1a.txt ./F" + str(iwnum) + "/"  
-        cmd3="ln -sr *F" + str(iwnum) + "* ./F" + str(iwnum) + "/raw/"
+        cmd3="ln -sr S*F" + str(iwnum) + "* ./F" + str(iwnum) + "/raw/"
         
     if debug:
         print " debug mode:", cmd
