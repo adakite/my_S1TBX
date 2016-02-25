@@ -147,7 +147,7 @@ for ii in range(0,n_sw):
     if demfile.rfind('/'):
         demfile=demfile[demfile.rfind('/')+1:]
     
-    cmd =  align_tops + "  ./raw/" + img1name + "  ./raw/" + eof1name + " ./raw/" + img2name + "  ./raw/" + eof2name + "  ./raw/" + demfile 
+    cmd =  "cd ./raw/ && " align_tops + "  ./raw/" + img1name + "  ./raw/" + eof1name + " ./raw/" + img2name + "  ./raw/" + eof2name + "  ./raw/" + demfile 
     
     
     
