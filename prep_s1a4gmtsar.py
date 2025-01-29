@@ -1,191 +1,125 @@
-# -*- coding: utf-8 -*-
+import os
+import sys
+import subprocess
+import fnmatch
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Metadata
 __author__ = "Antoine Lucas"
 __copyright__ = "Copyright 2016, Antoine Lucas"
 __license__ = "CeCILL"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __email__ = "dralucas@astrogeophysx.net"
 __status__ = "Prototype"
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Preparing S1A data for GMTSAR package
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-import os, sys
-import subprocess, fnmatch
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-os.system('clear')
-debug=True # debugging mode
-align_tops="/usr/local/GMT5SAR/bin/align_tops.csh"
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-print "Preparing S1A data for GMTSAR package"
-print "-------------------------------------"
-print " "
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if debug: 
-    print "!!! WARNING: Running in debugging mode, nothing but potential errors/warning will occur"  
-    print " "
-    
-    
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if len(sys.argv) < 4 or len(sys.argv) > 5:
-    print sys.argv[0]," usage:"
-    print "  ",sys.argv[0]," demfile.grd s1afile1 s1afile2 [subswath_number {1,2,3}]"
-    print "   if no subswath number is given, all of them (three) will be treated,"
-    print "   this value must be either 1, 2 or 3."
-    sys.exit(" ")
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-n_img = 2  # Number of images are always equal 2
-n_sw = 3   # Number of subswath = 3, this is easy to adjust if needed
+# Constants
+ALIGN_TOPS = "/usr/local/GMT5SAR/bin/align_tops.csh"
+DEBUG = True
 
-if len(sys.argv) == 5:
-    iwnum=sys.argv[4]
-    n_sw = 1  #if one swath is specified we squeeze the structures to one
-    
-# We create structures that will contain the filenames we need later on    
-S1Aswath = [ ([0] * n_sw) for nimg in range(n_img) ]
-S1Aoef = [ ([0] * 1) for nimg in range(n_img) ]
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def print_debug(message):
+    if DEBUG:
+        print(f"DEBUG: {message}")
 
 
-print " 1/ Creating RAW directory"
-cmd="mkdir raw"
-if debug:
-    print " debug mode:", cmd
-    print " "
-else:
-    out = subprocess.check_output(cmd, shell=True);
-        
-demfile=str(sys.argv[1])
-cmd="ln -sr " + str(demfile) + " ./raw/"
-if debug:
-    print " debug mode:", cmd
-    print " "
-else:
-    out = subprocess.check_output(cmd, shell=True);
-        
-ii=0 # we initiate ii counter for the first image
+def run_command(cmd):
+    """Run a shell command with error handling."""
+    try:
+        if DEBUG:
+            print_debug(f"Command: {cmd}")
+        else:
+            subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        sys.exit(f"ERROR: Command failed - {e}")
 
-print " 2/ linking tiff/xml into RAW directory for:"
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-for img in sys.argv[2:4]:
-    print "    ", img
 
-    if len(sys.argv)==4:  
-        cmd="ln -sr ./" + img + ".SAFE/annotation/s1a*.xml ./raw/"
-        S1Aswath[ii][:]=fnmatch.filter(os.listdir("./"+img+".SAFE/annotation/"),'s1a*-vv-*.xml')
-      
-    else:
-        cmd="ln -sr ./" + img + ".SAFE/annotation/s1a-iw" + str(iwnum) + "*-vv-*.xml ./raw/"
-        S1Aswath[ii][:]=fnmatch.filter(os.listdir("./"+img+".SAFE/annotation/"),"s1a-iw" + str(iwnum) + "*-vv-*.xml")
+# Main execution
+if __name__ == "__main__":
+    os.system("clear")
 
-  
-    if debug:
-        print " debug mode:", cmd
-        #print " debug mode:", S1Aswath
-        print " "
+    if len(sys.argv) < 4 or len(sys.argv) > 5:
+        print(f"Usage: {sys.argv[0]} demfile.grd s1afile1 s1afile2 [subswath_number {{1, 2, 3}}]")
+        print("   If no subswath number is given, all three will be treated.")
+        sys.exit()
 
-    else:
-        out = subprocess.check_output(cmd, shell=True)
-       
-    if len(sys.argv)==4:
-        cmd="ln -sr ./" + img + ".SAFE/measurement/s1a*.tiff  ./raw/"
-    else:
-        cmd="ln -sr ./" + img + ".SAFE/measurement/s1a-iw" + str(iwnum) + "*-vv-*.tiff ./raw/"
-        
-    if debug:
-        print " debug mode:", cmd
-        print " "
-    else:
-        out = subprocess.check_output(cmd, shell=True)
-    
-    # we parse the EOF filename so we can find the one we need
-    iT=img.index("T")
-    iT1=img.rindex("T")
-    date=img[iT-8:iT]
-    timemin=img[iT+1:iT+7]
-    timemax=img[iT1+1:iT1+7]
-    findeof=False
-    for eoffile in os.listdir("./"):
-        if eoffile.endswith(".EOF"):
-            
-                
-            iV=eoffile.index("V")
-            iT2=eoffile.rindex("T")
-            
-            tmax=int(eoffile[iT2-8:iT2]+eoffile[iT2+1:iT2+7])
-            tmin=int(eoffile[iV+1:iV+9]+eoffile[iV+10:iV+16])
-            if int(date+timemin) >= tmin and int(date+timemax) <= tmax:
-                print "     with its orb file:", eoffile
-                cmd="ln -sr " + eoffile + " ./raw/"
-                S1Aoef[ii]=eoffile
-                findeof=True
-                if debug:
-                    print " debug mode:", cmd
-                    #print cmd
-                    #print S1Aoef
-                    print " "
-                else:
-                    out = subprocess.check_output(cmd, shell=True)
-                    
-      
-    if not findeof:
-        sys.exit("ERROR !!!! EOF file is missing for " + img) 
-                
-    ii=ii+1 #iterate on images
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    print("Preparing S1A data for GMTSAR package")
+    print("-------------------------------------\n")
 
-print " 3/ Preprocessing subswaths"
+    if DEBUG:
+        print("!!! WARNING: Running in debugging mode. Only potential errors/warnings will occur.\n")
 
-for ii in range(0,n_sw):
-    if len(sys.argv)==4:  
-        print "      Subswath #:", str(ii+1)
-    else:
-        print "      Subswath #:", str(iwnum)
-    
-    img1name = S1Aswath[0][ii][:-4]
-    img2name = S1Aswath[1][ii][:-4]
-    eof1name = S1Aoef[0]
-    eof2name = S1Aoef[1]
-    if demfile.rfind('/'):
-        demfile=demfile[demfile.rfind('/')+1:]
-    
-    cmd =  align_tops + "  ./raw/" + img1name + "  ./raw/" + eof1name + " ./raw/" + img2name + "  ./raw/" + eof2name + "  ./raw/" + demfile 
-    
-    
-    
-    if debug:
-        print " debug mode:", cmd
+    demfile = sys.argv[1]
+    img_files = sys.argv[2:4]
+    subswath_number = sys.argv[4] if len(sys.argv) == 5 else None
 
-    else:
-        out = subprocess.check_output(cmd, shell=True)
-        
-        
-    if len(sys.argv)==4:  
-        cmd="mkdir F" + str(ii+1)
-    else: 
-        cmd="mkdir F" + str(iwnum)
-        
-        
-    if debug:
-        print " debug mode:", cmd
+    # Create RAW directory
+    print("1/ Creating RAW directory")
+    run_command("mkdir -p raw")
 
-    else:
-        out = subprocess.check_output(cmd, shell=True)    
-    
-    
-    if len(sys.argv)==4:  
-        cmd="mkdir F" + str(ii+1) + "/raw"
-        cmd2="ln -sr ../config.s1a.txt ./F" + str(ii+1) + "/"
-        cmd3="ln -sr S*F" + str(ii+1) + "* ./F" + str(ii+1) + "/raw/"
-    else: 
-        cmd="mkdir F" + str(iwnum) + "/raw"
-        cmd2="ln -sr ../config.s1a.txt ./F" + str(iwnum) + "/"  
-        cmd3="ln -sr S*F" + str(iwnum) + "* ./F" + str(iwnum) + "/raw/"
-        
-    if debug:
-        print " debug mode:", cmd
-        print " debug mode:", cmd2
-        print " debug mode:", cmd3
-        
-    else:
-        out = subprocess.check_output(cmd, shell=True)    
-        out = subprocess.check_output(cmd2, shell=True)   
-        out = subprocess.check_output(cmd3, shell=True) 
+    # Link DEM file
+    run_command(f"ln -sr {demfile} ./raw/")
+
+    # Prepare S1A data
+    n_img = 2
+    n_sw = 1 if subswath_number else 3
+
+    S1Aswath = [[None] * n_sw for _ in range(n_img)]
+    S1Aoef = [None] * n_img
+
+    print("2/ Linking TIFF/XML into RAW directory for:")
+    for ii, img in enumerate(img_files):
+        print(f"   {img}")
+
+        # Handle annotation files
+        annotation_pattern = f"s1a-iw{subswath_number}*-vv-*.xml" if subswath_number else "s1a*-vv-*.xml"
+        cmd = f"ln -sr ./{img}.SAFE/annotation/{annotation_pattern} ./raw/"
+        run_command(cmd)
+        S1Aswath[ii] = fnmatch.filter(os.listdir(f"./{img}.SAFE/annotation/"), annotation_pattern)
+
+        # Handle measurement files
+        measurement_pattern = f"s1a-iw{subswath_number}*-vv-*.tiff" if subswath_number else "s1a*.tiff"
+        cmd = f"ln -sr ./{img}.SAFE/measurement/{measurement_pattern} ./raw/"
+        run_command(cmd)
+
+        # Find and link EOF file
+        date_time = img.split("_")[-2]  # Extract date/time from filename
+        date = date_time[:8]
+        time_min = date_time[9:15]
+        time_max = date_time[16:]
+
+        eof_found = False
+        for eoffile in os.listdir("./"):
+            if eoffile.endswith(".EOF"):
+                tmin = int(eoffile.split("_V")[1].split("T")[0])
+                tmax = int(eoffile.split("T")[1].replace("Z", ""))
+                if int(date + time_min) >= tmin and int(date + time_max) <= tmax:
+                    run_command(f"ln -sr {eoffile} ./raw/")
+                    S1Aoef[ii] = eoffile
+                    eof_found = True
+                    break
+
+        if not eof_found:
+            sys.exit(f"ERROR: EOF file is missing for {img}")
+
+    print("3/ Preprocessing subswaths")
+    for i in range(n_sw):
+        subswath_id = subswath_number or i + 1
+        print(f"   Subswath #: {subswath_id}")
+
+        img1name = S1Aswath[0][i][:-4]
+        img2name = S1Aswath[1][i][:-4]
+        eof1name = S1Aoef[0]
+        eof2name = S1Aoef[1]
+
+        cmd = (f"{ALIGN_TOPS} ./raw/{img1name} ./raw/{eof1name} "
+               f"./raw/{img2name} ./raw/{eof2name} ./raw/{demfile}")
+        run_command(cmd)
+
+        # Create F directories
+        f_dir = f"F{subswath_id}"
+        run_command(f"mkdir -p {f_dir}/raw")
+        run_command(f"ln -sr ../config.s1a.txt ./{f_dir}/")
+        run_command(f"ln -sr S*F{subswath_id}* ./{f_dir}/raw/")
+
+    print("Processing complete!")
